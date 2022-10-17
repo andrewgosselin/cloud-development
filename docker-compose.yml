@@ -1,0 +1,37 @@
+version: '3.3'
+services:
+    nginx-proxy:
+      image: jwilder/nginx-proxy
+      ports:
+        - "80:80"
+      volumes:
+        - /var/run/docker.sock:/tmp/docker.sock:ro
+    vscode:
+      container_name: code-server
+      environment:
+        - PUID=1000
+        - PGID=1000
+        - TZ=Europe/London
+        - SUDO_PASSWORD=appletree734
+        - PROXY_DOMAIN=vscode.localhost
+        - DEFAULT_WORKSPACE=/workspace
+        - VIRTUAL_HOST=vscode.localhost
+      volumes:
+        - '.config/code-server:/config'
+        - '/var/run/docker.sock:/var/run/docker.sock'
+        - '/usr/bin/docker:/usr/bin/docker'
+        - '~/workspace:/workspace'
+      restart: unless-stopped
+      image: 'lscr.io/linuxserver/code-server:latest'
+    yacht:
+      container_name: yacht
+      restart: unless-stopped
+      environment:
+        - VIRTUAL_HOST=yacht.localhost
+      volumes:
+        - .config/yacht:/config
+        - /var/run/docker.sock:/var/run/docker.sock
+      image: selfhostedpro/yacht
+networks:
+  default:
+    name: local-network
